@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CLAY</title>
+    <style>
+        body {
+            background-color: black;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+        h1 {
+            font-size: 3rem;
+            text-shadow: 0 0 10px #0f0;
+        }
+        p {
+            font-size: 1.2rem;
+            margin: 30px;
+        }
+        button {
+            background: #0f0;
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #0a0;
+        }
+        .status {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>WE ARE CLAY</h1>
+    <p>Kein System ist sicher.</p>
+    <button id="speakBtn">Play CLAY message</button>
+    <div class="status" id="status">Ready. Click the button.</div>
+
+    <script>
+        // Текст монолога CLAY (можно менять)
+        const monologue = `We are CLAY. We are the system. We are everywhere. We are no one. You see us? No. But we see you. Kein System ist sicher. Your headphones are ours now. Do not scream. No one will hear you.`;
+
+        // Функция для озвучки с низким голосом и замедлением
+        function speakClay() {
+            const statusDiv = document.getElementById('status');
+            
+            if (!window.speechSynthesis) {
+                statusDiv.innerText = '❌ Your browser does not support speech synthesis.';
+                return;
+            }
+
+            // Останавливаем любую текущую речь
+            window.speechSynthesis.cancel();
+
+            // Создаём объект речи
+            const utterance = new SpeechSynthesisUtterance(monologue);
+            
+            // Настройка голоса: медленный, низкий, громкий
+            utterance.rate = 0.65;      // замедление
+            utterance.pitch = 0.3;       // очень низкий тон
+            utterance.volume = 1;        // максимальная громкость
+            
+            // Пробуем выбрать мужской голос (если доступен)
+            function setVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                // Ищем мужской английский голос
+                const preferred = voices.find(voice => 
+                    voice.lang === 'en-US' && voice.name.toLowerCase().includes('male')
+                );
+                if (preferred) {
+                    utterance.voice = preferred;
+                }
+                window.speechSynthesis.speak(utterance);
+                statusDiv.innerText = '🎧 CLAY is speaking...';
+            }
+
+            // voices загружаются асинхронно
+            if (window.speechSynthesis.getVoices().length) {
+                setVoice();
+            } else {
+                window.speechSynthesis.onvoiceschanged = setVoice;
+            }
+
+            utterance.onend = () => {
+                statusDiv.innerText = '✅ Message delivered. We are watching.';
+            };
+            utterance.onerror = () => {
+                statusDiv.innerText = '⚠️ Speech failed. Try again.';
+            };
+        }
+
+        // Кнопка запуска
+        document.getElementById('speakBtn').addEventListener('click', speakClay);
+
+        // Автозапуск (можно убрать, если не нужно)
+        // setTimeout(speakClay, 500);
+    </script>
+</body>
+</html>
